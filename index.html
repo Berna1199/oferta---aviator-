@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Aviator Crash</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#071528;
+    --card:#0c1b2a;
+    --neon:#22f0e6;
+    --muted:#9aa9b7;
+    --gold:#ffd400;
+    --cta:#18b32a;
+    --cta-dark:#14a026;
+    --gray-btn:#8f8f8f;
+    --panel-shadow: 0 8px 30px rgba(2,6,23,0.6);
+    --rounded:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:Inter,system-ui,Arial;
+    background:linear-gradient(180deg,#041026 0%, #08182a 100%);
+    color:#e8f6fb;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:28px 12px;
+  }
+
+  .wrap{
+    width:100%;
+    max-width:420px;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  header h1{
+    margin:0;
+    font-size:22px;
+    color:var(--gold);
+    letter-spacing:0.6px;
+    font-weight:900;
+  }
+
+  .saldo {
+    margin:16px 0;
+    background:linear-gradient(90deg,#179a38,#14a72b);
+    padding:12px 18px;
+    border-radius:14px;
+    box-shadow: 0 6px 20px rgba(5,60,20,0.28);
+    text-align:center;
+    font-weight:800;
+    color:#fff;
+  }
+  .saldo small{ display:block; font-size:12px; color:rgba(255,255,255,0.9); margin-bottom:6px; font-weight:700}
+  .saldo span{ font-size:18px; letter-spacing:0.6px }
+
+  .card {
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:var(--rounded);
+    padding:18px;
+    box-shadow:var(--panel-shadow);
+  }
+
+  .mult {
+    background:#061428;
+    border-radius:14px;
+    padding:28px 18px;
+    box-shadow: 0 10px 30px rgba(2,8,20,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+    text-align:center;
+    margin-bottom:18px;
+  }
+  .mult .val {
+    font-size:64px;
+    line-height:1;
+    font-weight:900;
+    color:var(--neon);
+    text-shadow:0 6px 30px rgba(34,240,230,0.12);
+  }
+  .mult .prize {
+    margin-top:8px;
+    font-size:20px;
+    color:var(--neon);
+    opacity:0.95;
+    font-weight:700;
+  }
+
+  .controls {
+    margin-top:6px;
+    padding:14px;
+    border-radius:12px;
+    background:rgba(255,255,255,0.02);
+  }
+  .label {
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:800;
+    letter-spacing:0.9px;
+    margin-bottom:10px;
+    text-align:center;
+  }
+  .bet-row{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:12px;
+  }
+  .btn-step{
+    width:56px;
+    height:56px;
+    border-radius:12px;
+    background:#0f2740;
+    border:none;
+    color:#d5e8ef;
+    font-size:28px;
+    font-weight:800;
+    box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+  }
+  .bet-value{
+    min-width:140px;
+    max-width:160px;
+    height:56px;
+    border-radius:12px;
+    background:#0f2740;
+    border:none;
+    color:#fff;
+    font-size:22px;
+    font-weight:800;
+    text-align:center;
+    padding:8px 12px;
+  }
+
+  .btn-cta{
+    width:100%;
+    padding:14px;
+    border-radius:12px;
+    border:0;
+    font-weight:900;
+    font-size:18px;
+    cursor:pointer;
+    margin-bottom:12px;
+  }
+  .btn-bet{ background:var(--cta); color:#04210b; box-shadow: 0 8px 26px rgba(20,160,40,0.18) }
+  .btn-cash{ background:var(--gray-btn); color:#fff }
+
+  .small-muted{ font-size:13px; color:var(--muted); text-align:center; margin-top:6px }
+
+  /* popup */
+  .popup-bg{
+    position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.6); z-index:9999;
+  }
+  .popup{
+    width:92%;
+    max-width:360px;
+    background:#fff; color:#000; padding:18px; border-radius:12px; text-align:center;
+  }
+  .popup a{ display:inline-block; margin-top:12px; padding:10px 14px; background:var(--cta); color:#05210a; font-weight:800; border-radius:8px; text-decoration:none}
+  @media (max-width:420px){
+    .mult .val{ font-size:56px }
+    .bet-value{ min-width:120px }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>AVIATOR CRASH</h1>
+    </header>
+
+    <div class="saldo card" aria-live="polite">
+      <small>Saldo:</small>
+      <span id="saldoDisplay">MZN 10.000,00</span>
+    </div>
+
+    <div class="card">
+      <div class="mult" role="status" aria-live="polite">
+        <div id="multiplier" class="val">1,00x</div>
+        <div id="prize" class="prize">Prêmio: MZN 0,00</div>
+      </div>
+
+      <div class="controls">
+        <div class="label">APOSTA</div>
+        <div class="bet-row">
+          <button class="btn-step" id="minus">−</button>
+          <input id="betInput" class="bet-value" type="number" inputmode="numeric" value="100" min="1" />
+          <button class="btn-step" id="plus">+</button>
+        </div>
+
+        <button id="btnBet" class="btn-cta btn-bet">APOSTA DE LUGAR</button>
+        <button id="btnCash" class="btn-cta btn-cash" disabled>SAQUE</button>
+
+        <div class="small-muted">Dica: faça cashout antes do crash. Se crashar, perde a aposta.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- popup -->
+  <div id="popupBg" class="popup-bg" role="dialog" aria-modal="true">
+    <div id="popup" class="popup"></div>
+  </div>
+
+<script>
+/* Link novo */
+const OLABET_LINK = "https://media1.placard.co.mz/redirect.aspx?pid=2366&bid=1690";
+
+/* Estado */
+let saldoMZN = 10000.00; // apenas MZN
+let apostado = 0;
+let multiplicador = 1.0;
+let running = false;
+let intervalId = null;
+let crashAt = null;
+
+/* Elementos */
+const saldoDisplay = document.getElementById('saldoDisplay');
+const multiplierEl = document.getElementById('multiplier');
+const prizeEl = document.getElementById('prize');
+const betInput = document.getElementById('betInput');
+const btnBet = document.getElementById('btnBet');
+const btnCash = document.getElementById('btnCash');
+const btnPlus = document.getElementById('plus');
+const btnMinus = document.getElementById('minus');
+const popupBg = document.getElementById('popupBg');
+const popup = document.getElementById('popup');
+
+/* Util */
+function fmtMZN(num){
+  return 'MZN ' + num.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+function parseBetValue(){
+  const v = Number(betInput.value);
+  return isNaN(v) ? 0 : Math.max(0, Math.floor(v));
+}
+function pickCrash(){
+  const u = Math.random();
+  const base = 1.2;
+  const lambda = 0.9;
+  const val = base + (Math.exp(-lambda * u) * 80);
+  return Math.max(base, Math.min(val,100));
+}
+
+/* UI atualiza */
+function atualizarSaldoUI(){
+  saldoDisplay.textContent = fmtMZN(saldoMZN);
+}
+function atualizarPrizeUI(){
+  const premio = apostado * multiplicador;
+  prizeEl.textContent = 'Prêmio: ' + fmtMZN(premio);
+}
+function atualizarMultiplierUI(){
+  multiplierEl.textContent = multiplicador.toFixed(2).replace('.',',') + 'x';
+}
+
+/* Ações */
+btnPlus.addEventListener('click', ()=> {
+  betInput.value = parseBetValue() + 50;
+});
+btnMinus.addEventListener('click', ()=> {
+  betInput.value = Math.max(0, parseBetValue() - 50);
+});
+
+btnBet.addEventListener('click', ()=> {
+  if (running) return;
+  const v = parseBetValue();
+  if (!v || v <= 0){
+    alert('Insira um valor para apostar.');
+    return;
+  }
+  if (v > saldoMZN){
+    alert('Saldo insuficiente.');
+    return;
+  }
+
+  // reservar aposta
+  apostado = v;
+  saldoMZN = +(saldoMZN - apostado);
+  atualizarSaldoUI();
+
+  multiplicador = 1.00;
+  atualizarMultiplierUI();
+  atualizarPrizeUI();
+
+  running = true;
+  btnBet.disabled = true;
+  btnCash.disabled = false;
+
+  crashAt = pickCrash();
+
+  let lastTime = performance.now();
+  intervalId = setInterval(()=>{
+    const now = performance.now();
+    const dt = Math.min((now - lastTime)/1000, 0.2);
+    lastTime = now;
+    const inc = 0.02 + multiplicador * 0.005;
+    multiplicador = multiplicador + inc * (1 + dt*3);
+    if (multiplicador > 999) multiplicador = 999;
+    atualizarMultiplierUI();
+    atualizarPrizeUI();
+
+    if (multiplicador >= crashAt){
+      clearInterval(intervalId);
+      running = false;
+      multiplierEl.textContent = crashAt.toFixed(2).replace('.',',') + 'x ✖';
+      prizeEl.textContent = 'Prêmio: MZN 0,00';
+      btnCash.disabled = true;
+      btnBet.disabled = false;
+      showPopupCrash(crashAt);
+      apostado = 0;
+    }
+  }, 80);
+});
+
+btnCash.addEventListener('click', ()=> {
+  if (!running || apostado <= 0) return;
+  clearInterval(intervalId);
+  running = false;
+  btnCash.disabled = true;
+  btnBet.disabled = false;
+
+  const ganho = apostado * multiplicador;
+
+  saldoMZN = +(saldoMZN + ganho);
+  atualizarSaldoUI();
+
+  showPopupWin(ganho);
+
+  apostado = 0;
+  multiplicador = 1.0;
+  atualizarMultiplierUI();
+  atualizarPrizeUI();
+});
+
+/* Popups */
+function showPopupWin(ganho){
+  popup.innerHTML = '<h3>🎉 Parabéns!</h3>'
+    + '<p>Você fez cashout: <strong>' + fmtMZN(ganho) + '</strong></p>'
+    + '<p>Clique abaixo para registar e receber o bónus:</p>'
+    + '<a href="' + OLABET_LINK + '" target="_blank" rel="noopener noreferrer">👉 Criar Conta</a>'
+    + '<div style="margin-top:12px"><button onclick="closePopup()" style="padding:8px 12px;border-radius:8px;border:0;background:#ddd;margin-top:12px;cursor:pointer">Fechar</button></div>';
+  popupBg.style.display = 'flex';
+}
+function showPopupCrash(crashVal){
+  popup.innerHTML = '<h3>💥 CRASH!</h3>'
+    + '<p>Crashou em <strong>' + crashVal.toFixed(2).replace('.',',') + 'x</strong></p>'
+    + '<p>Perdeu a aposta de <strong>' + fmtMZN(apostado) + '</strong></p>'
+    + '<div style="margin-top:12px"><button onclick="closePopup()" style="padding:8px 12px;border-radius:8px;border:0;background:#ddd;cursor:pointer">Fechar</button></div>';
+  popupBg.style.display = 'flex';
+}
+function closePopup(){
+  popupBg.style.display = 'none';
+}
+
+popupBg.addEventListener('click', (e)=> {
+  if (e.target === popupBg) closePopup();
+});
+
+atualizarSaldoUI();
+atualizarMultiplierUI();
+atualizarPrizeUI();
+btnCash.disabled = true;
+</script>
+</body>
+</html>
